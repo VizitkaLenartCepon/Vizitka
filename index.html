@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html>
+  <script src="https://aframe.io/releases/1.0.4/aframe.min.js"></script>
+  <!-- we import arjs version without NFT but with marker + location based support -->
+  <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/donmccurdy/aframe-extras@v6.1.1/dist/aframe-extras.min.js"></script>
+      <!-- Compiled and minified CSS -->
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+      <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+
+      <!-- Compiled and minified JavaScript -->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+
+      <div id="findAR"><img src="findar.png" style="position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        opacity: 0.5;"></div>
+
+
+  <div id="fab" class="fixed-action-btn">
+    <a class="btn-floating btn-large red">
+      <i id="playBtn" class="large material-icons" onclick="playaudio()">play_arrow</i>
+    </a>
+    <ul>
+      <li><a id="workBtn" class="btn-floating red"><i class="material-icons">work</i></a></li>
+      <li><a id="weekendBtn" class="btn-floating yellow darken-1"><i class="material-icons">weekend</i></a></li>
+      <li><a id="addBtn" class="btn-floating green"><i class="material-icons">person_add</i></a></li>
+      <li><a id="musicBtn" class="btn-floating blue"><i class="material-icons">music_note</i></a></li>
+    </ul>
+  </div>
+
+
+
+  <body style="margin : 0px; overflow: hidden;">
+    <a-scene embedded arjs  vr-mode-ui="enabled: false;">
+<!--      <a-assets>
+        <a-asset-item id="mocap" src="/Models/chrisfinal.gltf"></a-asset-item>
+        <a-asset-item id="logo" src="/Models/logo.gltf"></a-asset-item>
+        <img id="network" src="/Images/network.jpg">
+        <img id="lucas" src="/Images/lucas.jpg">
+        <img id="podcast" src="/Images/podcast.jpg">
+        <img id="talk" src="/Images/talk.jpg">
+      </a-assets> -->
+      <audio id="audio" src="/Audio/vo.mp3"></audio>
+
+
+      <a-marker markerhandler preset="pattern" type="pattern" url="/Models/final3.patt">
+        <!-- we use cors proxy to avoid cross-origin problems -->
+        <!--
+          ⚠️⚠️⚠️
+          https://arjs-cors-proxy.herokuapp.com/ is now offline, Heroku has dismissed all his free plans from November 2022.
+          You need to host your own proxy and use it instead. The proxy is based on CORS Anywhere (see https://github.com/Rob--W/cors-anywhere).
+          ⚠️⚠️⚠️
+        -->
+        <a-entity cloak position="0 -0.35 0"></a-entity>
+        <a-entity light="type: ambient; color: #FFF; intensity:3"></a-entity>
+        <a-entity light="type: directional; color: #FFF; intensity: 0" position="-0.5 1 1"></a-entity>
+        <a-entity
+        id="mocapent"
+          position="0 10 0"
+          scale="0.4 0.4 0.4"
+          gltf-model="#mocap"
+          animation-mixer="clip: Fall; crossFadeDuration: .3"
+          animation="id: fallen; property: position; to: 0 0.1 0; dur: 3000; delay:3000; easing: linear; startEvents: raise;"
+          visible="false"
+        ></a-entity>
+
+        <a-entity 
+        id="logoent"
+        position="0 0 0"
+        scale="0.1 0.1 0.1"
+        gltf-model="#logo"
+        animation="property: rotation; to: 0 360 0; loop: true; dur: 10000; easing: linear; pauseEvents: raise"
+        animation__2="property: position; to: 0 1 0; from: 0 0.5 0; loop: true; dur: 2000; dir: alternate; easing: linear; pauseEvents: raise"
+        animation__3="property: position; to: 0 0 0; dur: 1000; easing: linear; startEvents: raise;"
+        animation__4="property: rotation; to: 0 0 0; dur: 1000; easing: linear; startEvents: raise;"
+        animation-mixer="timeScale: 0; clampWhenFinished: true; loop: once"
+      ></a-entity>
+
+      <a-image 
+      id="imageent"
+      visible = "false"
+      src="#talk" 
+      width="1.7" 
+      height="0" 
+      position="0 0.75 -1"
+      animation="property: scale; dur: 500; from: 1 0 0; to: 1 1 0; loop: false; easing: linear; startEvents: openImage; autoplay: false"
+      animation__2="property: scale; dur: 500; to: 1 0 0; from: 1 1 0; loop: false; easing: linear; startEvents: closeImage; autoplay: false"
+      ></a-image>
+
+      </a-marker>
+      <a-entity camera></a-entity>
+    </a-scene>
+  </body>
+  <script>
+    var x = 1;
+    var started = 0;
+    var currentclip = "Fall"; 
+    var NextClip = "FallImpact";
+    document.getElementById('fab').style.display = "none";
+    document.getElementById('fab').addEventListener("click", function(e){
+    mocapent.emit("raise");
+    logoent.emit("raise");
+    if (started == 0){
+    setTimeout(() => { changeAnimation("FallImpact"); }, 6000);
+    setTimeout(() => { changeAnimation("StandUp"); }, 7000);
+    setTimeout(() => { changeAnimation("Waving"); }, 8500);
+    setTimeout(() => { talkingAnimation(3); }, 10000);
+
+    //talkingAnimation(6);
+    // setTimeout(() => { changeAnimation("Talking1"); }, 10000); 
+    // setTimeout(() => { changeAnimation("Talking2"); }, 20000);
+    // setTimeout(() => { changeAnimation("Talking3"); }, 30000);
+
+    setTimeout(() => { displayImage("#network", 6000); }, 15000);
+    setTimeout(() => { displayImage("#lucas", 6000); }, 22000);
+    setTimeout(() => { displayImage("#podcast", 6000); }, 30000);
+    setTimeout(() => { displayImage("#talk", 7500); }, 37000);
+
+
+
+    started = 1;
+    }
+
+
+    document.getElementById('logoent').setAttribute('animation-mixer', {
+      timeScale: 1,
+      clampWhenFinished: true,
+      
+    });
+    
+    document.getElementById('mocapent').setAttribute('visible','true');
+
+    
+        }, false);
+
+//Marker Handler        
+        AFRAME.registerComponent('markerhandler', {
+    init: function () {
+      this.el.sceneEl.addEventListener('markerFound', () => {
+        // redirect to custom URL e.g. google.com
+        if (x == 1){
+          document.getElementById('fab').style.display = "block";
+          document.getElementById('findAR').style.display = "none";
+
+          x = 2;
+                }
+      })
+    }
+  });
+
+//Invisibility Cloak
+      AFRAME.registerComponent('cloak', {
+   init: function() {
+     var geometry = new THREE.BoxGeometry( 10, 0.5, 10 );
+     var material = new THREE.MeshBasicMaterial( {colorWrite: false} );
+     var cube = new THREE.Mesh( geometry, material );
+     this.el.object3D.add( cube );
+   }
+})
+
+//Floating Action Button
+    document.addEventListener('DOMContentLoaded', function() {
+    var elems = document.querySelectorAll('.fixed-action-btn');
+    var instances = M.FloatingActionButton.init(elems, {
+      direction: 'up',
+      hoverEnabled: false
+
+    });
+  });
+
+//Change Animation function
+  function changeAnimation(actionname){
+    if (actionname == "FallImpact" || actionname == "StandUp"){
+      mocapent.setAttribute("animation-mixer","clip: " + actionname +"; crossFadeDuration: .3; clampWhenFinished: true; loop: once"); 
+
+
+
+    } else {
+      mocapent.setAttribute("animation-mixer","clip: " + actionname +"; crossFadeDuration: .3; clampWhenFinished: false; loop: repeat"); 
+
+    }
+
+  }
+
+
+//Mocap controls
+//https://nilooy.github.io/character-animation-combiner/
+
+  document.getElementById('musicBtn').addEventListener("click", function(e){
+    //mocapent.setAttribute("animation-mixer","clip: Flair; crossFadeDuration: .3");
+    changeAnimation("Dance");
+        }, false);
+
+  document.getElementById('addBtn').addEventListener("click", function(e){
+    changeAnimation("Waving");
+        }, false);
+        
+        document.getElementById('workBtn').addEventListener("click", function(e){
+          changeAnimation("Touchscreen");
+        }, false);
+
+        document.getElementById('weekendBtn').addEventListener("click", function(e){
+          changeAnimation("Talking1");
+        }, false);
+
+
+     fallen.addEventListener('animationend', function () {
+      changeAnimation("FallImpact");
+
+});
+mocapent.addEventListener('animationend', function () {
+      changeAnimation("FallImpact");
+
+});
+
+//Audio manager
+
+function playaudio() {
+  if (started == 0){
+        var audio = document.getElementById("audio");
+        audio.play();
+      }
+    }
+
+function displayImage(imagename, duration) {
+  
+  var imageElement = document.getElementById('imageent');
+  imageElement.setAttribute('visible','true');
+  imageElement.setAttribute('src', imagename);
+
+
+  imageElement.emit("openImage");
+
+
+  setTimeout(() => {   
+    imageElement.emit("closeImage");
+}, duration);
+
+
+
+}
+
+function talkingAnimation(duration){
+  var totaltime = 4000;
+  var talknumber = 1;
+  changeAnimation("Talking3");
+  for (let i = 0; i < duration; i++) {
+    for (let x = 1; x < 4; x++){
+    setTimeout(() => { changeAnimation("Talking"+x); }, totaltime); 
+    totaltime = totaltime + 4000;
+    }
+  }
+  setTimeout(() => { changeAnimation("idle"); }, totaltime); 
+}
+
+        
+</script>
+</html>
